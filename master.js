@@ -67,60 +67,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Загрузка и отображение записей
     async function loadAppointments() {
-        appointmentsTable.innerHTML = '<tr><td colspan="7">Загрузка...</td></tr>';
-        let query = supabaseClient
-            .from('appointments')
-            .select(`
-                id,
-                appointment_date,
-                appointment_time,
-                status,
-                clients (name, phone, haircut_count)
-            `)
-            .order('appointment_date', { ascending: true })
-            .order('appointment_time', { ascending: true });
+    appointmentsTable.innerHTML = '<tr><td colspan="7">Загрузка...</td></tr>';
+    
+    // 1. Получаем все записи
+    let query = supabaseClient
+        .from('appointments')
+        .select('*')
+        .order('appointment_date', { ascending: true })
+        .order('appointment_time', { ascending: true });
 
-        if (filterDate.value) {
-            query = query.eq('appointment_date', filterDate.value);
-        }
+    if (filterDate.value) {
+        query = query.eq('appointment_date', filterDate.value);
+    }
+    if (filterStatus.value) {
+        query = query.eq('status', filterStatus.value);
+    }
 
-        if (filterStatus.value) {
-            query = query.eq('status', filterStatus.value);
-        }
+    const { data: appointments, error: appsError } = await query;
 
-        const { data, error } = await query;
+    if (appsError) {
+        console.error('Ошибка загрузки записей:', appsError);
+        appointmentsTable.innerHTML = '<tr><td colspan="7">Ошибка загрузки</td></tr>';
+        return;
+    }
 
-        if (error) {
-            console.error('Ошибка загрузки записей:', error);
-            appointmentsTable.innerHTML = '<tr><td colspan="7">Ошибка загрузки</td></tr>';
-            return;
-        }
+    if (appointments.length === 0) {
+        appointmentsTable.innerHTML = '<tr><td colspan="7">Нет записей</td></tr>';
+        return;
+    }
 
-        appointmentsTable.innerHTML = '';
-        if (data.length === 0) {
-            appointmentsTable.innerHTML = '<tr><td colspan="7">Нет записей</td></tr>';
-            return;
-        }
+    // 2. Получаем уникальные ID клиентов
+    const clientIds = [...new Set(appointments.map(a => a.client_id))];
+    
+    // 3. Запрашиваем клиентов
+    const { data: clients, error: clientsError } = await supabaseClient
+        .from('clients')
+        .select('id, name, phone, haircut_count')
+        .in('id', clientIds);
 
-        data.forEach(app => {
-            const row = appointmentsTable.insertRow();
-            row.innerHTML = `
-                <td>${formatDate(app.appointment_date)}</td>
-                <td>${app.appointment_time}</td>
-                <td>${app.clients.name}</td>
-                <td>${app.clients.phone}</td>
-                <td>${app.clients.haircut_count}</td>
-                <td><span class="status-badge status-${app.status}">${getStatusText(app.status)}</span></td>
-                <td class="actions">
-                    ${app.status === 'active' ? `
-                        <button class="btn-small btn-complete" onclick="completeAppointment(${app.id})"><i class="fas fa-check"></i></button>
-                        <button class="btn-small btn-cancel" onclick="cancelAppointment(${app.id})"><i class="fas fa-times"></i></button>
-                    ` : ''}
-                    <button class="btn-small btn-delete" onclick="deleteAppointment(${app.id})"><i class="fas fa-trash"></i></button>
-                </td>
-            `;
-        });
+    if (clientsError) {
+        console.error('Ошибка загрузки клиентов:', clientsError);
+        appointmentsTable.innerHTML = '<tr><td colspan="7">Ошибка загрузки клиентов</td></tr>';
+        return;
+    }
 
+    // 4. Создаём карту клиентов для быстрого доступа
+    const clientsMap = Object.fromEntries(clients.map(c => [c.id, c]));
+
+    // 5. Заполняем таблицу
+    appointments.forEach(app => {
+        const client = clientsMap[app.client_id] || { name: 'Неизвестно', phone: '', haircut_count: 0 };
+        const row = appointmentsTable.insertRow();
+        row.innerHTML = `
+            <td>${formatDate(app.appointment_date)}</td>
+            <td>${app.appointment_time}</td>
+            <td>${client.name}</td>
+            <td>${client.phone}</td>
+            <td>${client.haircut_count}</td>
+            <td><span class="status-badge status-${app.status}">${getStatusText(app.status)}</span></td>
+            <td class="actions">
+                ${app.status === 'active' ? `
+                    <button class="btn-small btn-complete" onclick="completeAppointment(${app.id})"><i class="fas fa-check"></i></button>
+                    <button class="btn-small btn-cancel" onclick="cancelAppointment(${app.id})"><i class="fas fa-times"></i></button>
+                ` : ''}
+                <button class="btn-small btn-delete" onclick="deleteAppointment(${app.id})"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+    });
+
+    updateStatusIndicator();
+}
         updateStatusIndicator();
     }
 
