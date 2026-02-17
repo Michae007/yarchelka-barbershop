@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const tabId = this.getAttribute('data-tab');
 
-            // Активируем нужную вкладку
             tabLinks.forEach(l => l.classList.remove('active'));
             this.classList.add('active');
 
@@ -58,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 content.classList.remove('active');
                 if (content.id === tabId) {
                     content.classList.add('active');
-                    // Загружаем данные при открытии вкладки
                     if (tabId === 'appointments') loadAppointments();
                     if (tabId === 'clients') loadClients();
                     if (tabId === 'settings') loadSettings();
@@ -70,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Загрузка и отображение записей
     async function loadAppointments() {
         appointmentsTable.innerHTML = '<tr><td colspan="7">Загрузка...</td></tr>';
-        let query = supabase
+        let query = supabaseClient
             .from('appointments')
             .select(`
                 id,
@@ -129,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Загрузка клиентов
     async function loadClients() {
         clientsTable.innerHTML = '<tr><td colspan="6">Загрузка...</td></tr>';
-        let query = supabase
+        let query = supabaseClient
             .from('clients')
             .select('*')
             .order('name', { ascending: true });
@@ -172,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Загрузка настроек
     async function loadSettings() {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('master_settings')
             .select('*')
             .single();
@@ -190,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Сохранение настроек
     saveSettingsBtn.addEventListener('click', async function() {
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('master_settings')
             .update({
                 work_start: workStartInput.value,
@@ -221,8 +219,7 @@ document.addEventListener('DOMContentLoaded', function() {
     addHaircutBtn.addEventListener('click', async function() {
         if (!selectedClientId) return;
 
-        // Получаем текущее количество
-        const { data: client, error: fetchError } = await supabase
+        const { data: client, error: fetchError } = await supabaseClient
             .from('clients')
             .select('haircut_count')
             .eq('id', selectedClientId)
@@ -235,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const newCount = client.haircut_count + 1;
 
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('clients')
             .update({ haircut_count: newCount })
             .eq('id', selectedClientId);
@@ -245,8 +242,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             modalHaircutCount.textContent = newCount;
             modalRemaining.textContent = 6 - (newCount % 6);
-            loadClients(); // Обновляем таблицу клиентов
-            loadAppointments(); // Обновляем таблицу записей
+            loadClients();
+            loadAppointments();
         }
     });
 
@@ -255,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!selectedClientId) return;
 
         if (confirm('Сбросить счетчик стрижек на 0?')) {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('clients')
                 .update({ haircut_count: 0 })
                 .eq('id', selectedClientId);
@@ -279,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функции действий с записями (глобальные для onclick)
     window.completeAppointment = async function(id) {
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('appointments')
             .update({ status: 'completed' })
             .eq('id', id);
@@ -292,7 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.cancelAppointment = async function(id) {
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('appointments')
             .update({ status: 'cancelled' })
             .eq('id', id);
@@ -306,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.deleteAppointment = async function(id) {
         if (confirm('Удалить запись?')) {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('appointments')
                 .delete()
                 .eq('id', id);
@@ -321,10 +318,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.deleteClient = async function(id) {
         if (confirm('Удалить клиента и все его записи?')) {
-            // Сначала удаляем связанные записи
-            await supabase.from('appointments').delete().eq('client_id', id);
-            // Затем клиента
-            const { error } = await supabase.from('clients').delete().eq('id', id);
+            await supabaseClient.from('appointments').delete().eq('client_id', id);
+            const { error } = await supabaseClient.from('clients').delete().eq('id', id);
 
             if (error) {
                 alert('Ошибка: ' + error.message);
@@ -380,7 +375,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = 'index.html';
     });
 
-    // Дебаунс для поиска
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -396,5 +390,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Инициализация
     loadAppointments();
     updateStatusIndicator();
-    setInterval(updateStatusIndicator, 60000); // Обновлять статус каждую минуту
+    setInterval(updateStatusIndicator, 60000);
 });
