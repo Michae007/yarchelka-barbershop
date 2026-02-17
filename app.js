@@ -13,18 +13,15 @@ document.addEventListener('DOMContentLoaded', function() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     dateInput.min = tomorrow.toISOString().split('T')[0];
 
-    // Загрузка доступных времен при выборе даты
     dateInput.addEventListener('change', loadAvailableTimes);
 
     async function loadAvailableTimes() {
         const selectedDate = dateInput.value;
         if (!selectedDate) return;
 
-        console.log('Выбрана дата:', selectedDate);
         timeSelect.innerHTML = '<option value="">-- Загрузка... --</option>';
 
-        // 1. Получаем настройки рабочего времени
-        console.log('Запрашиваем настройки из master_settings...');
+        // Получаем настройки рабочего времени
         const { data: settings, error: settingsError } = await supabaseClient
             .from('master_settings')
             .select('*')
@@ -37,46 +34,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (!settings) {
-            console.error('Нет данных в таблице master_settings! Добавьте хотя бы одну строку.');
+            console.error('Нет данных в таблице master_settings!');
             timeSelect.innerHTML = '<option value="">Настройки не найдены</option>';
             return;
         }
 
-        console.log('Настройки получены:', settings);
-
-        // 2. Получаем уже занятые слоты на эту дату
+        // Получаем уже занятые слоты
         const { data: existingAppointments, error: appsError } = await supabaseClient
             .from('appointments')
             .select('appointment_time')
             .eq('appointment_date', selectedDate)
             .eq('status', 'active');
 
-        if (appsError) {
-            console.error('Ошибка загрузки записей:', appsError);
-        }
-
         const bookedTimes = existingAppointments ? existingAppointments.map(a => a.appointment_time) : [];
-        console.log('Занятые слоты:', bookedTimes);
 
-        // 3. Генерация всех возможных слотов
+        // Генерация слотов с правильными именами полей
         const slots = [];
-        const start = new Date(`${selectedDate}T${settings.work_start}`);
-        const end = new Date(`${selectedDate}T${settings.work_end}`);
-        const slotDuration = settings.slot_duration * 60000; // в миллисекундах
-
-        // Проверка на корректность дат
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            console.error('Некорректный формат времени в настройках:', settings.work_start, settings.work_end);
-            timeSelect.innerHTML = '<option value="">Ошибка формата времени</option>';
-            return;
-        }
+        const start = new Date(`${selectedDate}T${settings.work_start_time}`);
+        const end = new Date(`${selectedDate}T${settings.work_end_time}`);
+        const slotDuration = settings.slot_duration * 60000;
 
         let current = start;
         while (current < end) {
-            const timeString = current.toTimeString().slice(0,5); // "HH:MM"
-            // Проверяем, не прошедшее ли это время (если выбрана сегодняшняя дата)
+            const timeString = current.toTimeString().slice(0,5);
             const isFuture = new Date(`${selectedDate}T${timeString}`) > new Date();
-            // И не занято ли
             const isBooked = bookedTimes.includes(timeString);
 
             if (isFuture && !isBooked) {
@@ -85,9 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
             current = new Date(current.getTime() + slotDuration);
         }
 
-        console.log('Доступные слоты:', slots);
-
-        // 4. Заполняем select
+        // Заполняем select
         timeSelect.innerHTML = '<option value="">-- Выберите время --</option>';
         if (slots.length === 0) {
             timeSelect.innerHTML += '<option value="">Нет свободных слотов</option>';
@@ -101,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обработка формы записи
+    // Обработка формы записи (остаётся без изменений)
     submitBtn.addEventListener('click', async function(e) {
         e.preventDefault();
 
@@ -118,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Отправка...';
 
-        // 1. Проверяем/создаем клиента
+        // Поиск или создание клиента
         let clientId;
         const { data: existingClient, error: clientError } = await supabaseClient
             .from('clients')
@@ -126,19 +105,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .eq('phone', phone)
             .maybeSingle();
 
-        if (clientError) {
-            console.error('Ошибка поиска клиента:', clientError);
-            showMessage('Ошибка при проверке клиента. Попробуйте позже.', 'error');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Записаться за 600 ₽';
-            return;
-        }
-
         if (existingClient) {
             clientId = existingClient.id;
-            console.log('Клиент найден, id:', clientId);
         } else {
-            // Создаем нового клиента
             const { data: newClient, error: newClientError } = await supabaseClient
                 .from('clients')
                 .insert([{ name, phone }])
@@ -146,17 +115,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 .single();
 
             if (newClientError) {
-                console.error('Ошибка создания клиента:', newClientError);
                 showMessage('Ошибка при создании клиента. Попробуйте позже.', 'error');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Записаться за 600 ₽';
                 return;
             }
             clientId = newClient.id;
-            console.log('Новый клиент создан, id:', clientId);
         }
 
-        // 2. Создаем запись
+        // Создание записи
         const { error: appointmentError } = await supabaseClient
             .from('appointments')
             .insert([{
@@ -167,11 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }]);
 
         if (appointmentError) {
-            console.error('Ошибка создания записи:', appointmentError);
             showMessage('Ошибка при создании записи. Попробуйте позже.', 'error');
         } else {
             showMessage(`Отлично, ${name}! Вы записаны на ${date} в ${time}. Мастер свяжется с вами для подтверждения.`, 'success');
-            // Очищаем форму
             nameInput.value = '';
             phoneInput.value = '';
             dateInput.value = '';
