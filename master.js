@@ -65,78 +65,76 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Загрузка и отображение записей
+    // Загрузка и отображение записей (исправленная версия, без ошибки связи)
     async function loadAppointments() {
-    appointmentsTable.innerHTML = '<tr><td colspan="7">Загрузка...</td></tr>';
-    
-    // 1. Получаем все записи
-    let query = supabaseClient
-        .from('appointments')
-        .select('*')
-        .order('appointment_date', { ascending: true })
-        .order('appointment_time', { ascending: true });
+        appointmentsTable.innerHTML = '<tr><td colspan="7">Загрузка...</td></tr>';
+        
+        // 1. Получаем все записи
+        let query = supabaseClient
+            .from('appointments')
+            .select('*')
+            .order('appointment_date', { ascending: true })
+            .order('appointment_time', { ascending: true });
 
-    if (filterDate.value) {
-        query = query.eq('appointment_date', filterDate.value);
-    }
-    if (filterStatus.value) {
-        query = query.eq('status', filterStatus.value);
-    }
+        if (filterDate.value) {
+            query = query.eq('appointment_date', filterDate.value);
+        }
+        if (filterStatus.value) {
+            query = query.eq('status', filterStatus.value);
+        }
 
-    const { data: appointments, error: appsError } = await query;
+        const { data: appointments, error: appsError } = await query;
 
-    if (appsError) {
-        console.error('Ошибка загрузки записей:', appsError);
-        appointmentsTable.innerHTML = '<tr><td colspan="7">Ошибка загрузки</td></tr>';
-        return;
-    }
+        if (appsError) {
+            console.error('Ошибка загрузки записей:', appsError);
+            appointmentsTable.innerHTML = '<tr><td colspan="7">Ошибка загрузки</td></tr>';
+            return;
+        }
 
-    if (appointments.length === 0) {
-        appointmentsTable.innerHTML = '<tr><td colspan="7">Нет записей</td></tr>';
-        return;
-    }
+        if (appointments.length === 0) {
+            appointmentsTable.innerHTML = '<tr><td colspan="7">Нет записей</td></tr>';
+            return;
+        }
 
-    // 2. Получаем уникальные ID клиентов
-    const clientIds = [...new Set(appointments.map(a => a.client_id))];
-    
-    // 3. Запрашиваем клиентов
-    const { data: clients, error: clientsError } = await supabaseClient
-        .from('clients')
-        .select('id, name, phone, haircut_count')
-        .in('id', clientIds);
+        // 2. Получаем уникальные ID клиентов
+        const clientIds = [...new Set(appointments.map(a => a.client_id))];
+        
+        // 3. Запрашиваем клиентов
+        const { data: clients, error: clientsError } = await supabaseClient
+            .from('clients')
+            .select('id, name, phone, haircut_count')
+            .in('id', clientIds);
 
-    if (clientsError) {
-        console.error('Ошибка загрузки клиентов:', clientsError);
-        appointmentsTable.innerHTML = '<tr><td colspan="7">Ошибка загрузки клиентов</td></tr>';
-        return;
-    }
+        if (clientsError) {
+            console.error('Ошибка загрузки клиентов:', clientsError);
+            appointmentsTable.innerHTML = '<tr><td colspan="7">Ошибка загрузки клиентов</td></tr>';
+            return;
+        }
 
-    // 4. Создаём карту клиентов для быстрого доступа
-    const clientsMap = Object.fromEntries(clients.map(c => [c.id, c]));
+        // 4. Создаём карту клиентов для быстрого доступа
+        const clientsMap = Object.fromEntries(clients.map(c => [c.id, c]));
 
-    // 5. Заполняем таблицу
-    appointments.forEach(app => {
-        const client = clientsMap[app.client_id] || { name: 'Неизвестно', phone: '', haircut_count: 0 };
-        const row = appointmentsTable.insertRow();
-        row.innerHTML = `
-            <td>${formatDate(app.appointment_date)}</td>
-            <td>${app.appointment_time}</td>
-            <td>${client.name}</td>
-            <td>${client.phone}</td>
-            <td>${client.haircut_count}</td>
-            <td><span class="status-badge status-${app.status}">${getStatusText(app.status)}</span></td>
-            <td class="actions">
-                ${app.status === 'active' ? `
-                    <button class="btn-small btn-complete" onclick="completeAppointment(${app.id})"><i class="fas fa-check"></i></button>
-                    <button class="btn-small btn-cancel" onclick="cancelAppointment(${app.id})"><i class="fas fa-times"></i></button>
-                ` : ''}
-                <button class="btn-small btn-delete" onclick="deleteAppointment(${app.id})"><i class="fas fa-trash"></i></button>
-            </td>
-        `;
-    });
+        // 5. Заполняем таблицу
+        appointments.forEach(app => {
+            const client = clientsMap[app.client_id] || { name: 'Неизвестно', phone: '', haircut_count: 0 };
+            const row = appointmentsTable.insertRow();
+            row.innerHTML = `
+                <td>${formatDate(app.appointment_date)}</td>
+                <td>${app.appointment_time}</td>
+                <td>${client.name}</td>
+                <td>${client.phone}</td>
+                <td>${client.haircut_count}</td>
+                <td><span class="status-badge status-${app.status}">${getStatusText(app.status)}</span></td>
+                <td class="actions">
+                    ${app.status === 'active' ? `
+                        <button class="btn-small btn-complete" onclick="completeAppointment(${app.id})"><i class="fas fa-check"></i></button>
+                        <button class="btn-small btn-cancel" onclick="cancelAppointment(${app.id})"><i class="fas fa-times"></i></button>
+                    ` : ''}
+                    <button class="btn-small btn-delete" onclick="deleteAppointment(${app.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+        });
 
-    updateStatusIndicator();
-}
         updateStatusIndicator();
     }
 
@@ -185,41 +183,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Загрузка настроек
-async function loadSettings() {
-    const { data, error } = await supabaseClient
-        .from('master_settings')
-        .select('*')
-        .single();
+    async function loadSettings() {
+        const { data, error } = await supabaseClient
+            .from('master_settings')
+            .select('*')
+            .single();
 
-    if (error) {
-        console.error('Ошибка загрузки настроек:', error);
-        return;
+        if (error) {
+            console.error('Ошибка загрузки настроек:', error);
+            return;
+        }
+
+        workStartInput.value = data.work_start_time;
+        workEndInput.value = data.work_end_time;
+        slotDurationInput.value = data.slot_duration;
+        priceInput.value = data.price;
     }
 
-    workStartInput.value = data.work_start_time;
-    workEndInput.value = data.work_end_time;
-    slotDurationInput.value = data.slot_duration;
-    priceInput.value = data.price;
-}
+    // Сохранение настроек
+    saveSettingsBtn.addEventListener('click', async function() {
+        const { error } = await supabaseClient
+            .from('master_settings')
+            .update({
+                work_start_time: workStartInput.value,
+                work_end_time: workEndInput.value,
+                slot_duration: slotDurationInput.value,
+                price: priceInput.value
+            })
+            .eq('id', 1);
 
-// Сохранение настроек
-saveSettingsBtn.addEventListener('click', async function() {
-    const { error } = await supabaseClient
-        .from('master_settings')
-        .update({
-            work_start_time: workStartInput.value,
-            work_end_time: workEndInput.value,
-            slot_duration: slotDurationInput.value,
-            price: priceInput.value
-        })
-        .eq('id', 1);
-
-    if (error) {
-        showSettingsMessage('Ошибка сохранения: ' + error.message, 'error');
-    } else {
-        showSettingsMessage('Настройки успешно сохранены!', 'success');
-    }
-});
+        if (error) {
+            showSettingsMessage('Ошибка сохранения: ' + error.message, 'error');
+        } else {
+            showSettingsMessage('Настройки успешно сохранены!', 'success');
+        }
+    });
 
     // Открытие модального окна клиента
     window.openClientModal = function(id, name, phone, count) {
