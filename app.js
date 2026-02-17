@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 1. Получаем настройки рабочего времени
         console.log('Запрашиваем настройки из master_settings...');
-        const { data: settings, error: settingsError } = await supabase
+        const { data: settings, error: settingsError } = await supabaseClient
             .from('master_settings')
             .select('*')
             .single();
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Настройки получены:', settings);
 
         // 2. Получаем уже занятые слоты на эту дату
-        const { data: existingAppointments, error: appsError } = await supabase
+        const { data: existingAppointments, error: appsError } = await supabaseClient
             .from('appointments')
             .select('appointment_time')
             .eq('appointment_date', selectedDate)
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 1. Проверяем/создаем клиента
         let clientId;
-        const { data: existingClient, error: clientError } = await supabase
+        const { data: existingClient, error: clientError } = await supabaseClient
             .from('clients')
             .select('id, haircut_count')
             .eq('phone', phone)
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Клиент найден, id:', clientId);
         } else {
             // Создаем нового клиента
-            const { data: newClient, error: newClientError } = await supabase
+            const { data: newClient, error: newClientError } = await supabaseClient
                 .from('clients')
                 .insert([{ name, phone }])
                 .select('id')
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // 2. Создаем запись
-        const { error: appointmentError } = await supabase
+        const { error: appointmentError } = await supabaseClient
             .from('appointments')
             .insert([{
                 client_id: clientId,
