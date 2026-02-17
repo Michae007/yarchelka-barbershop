@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детская парикмахерская «ЯрчЁлка» — Запись онлайн</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <!-- Вставьте ваше лого как изображение или текст -->
+                <h1><i class="fas fa-scissors"></i> ЯрчЁлка</h1>
+                <p class="tagline">Детская парикмахерская в Ярцево</p>
+            </div>
+            <nav>
+                <a href="#about">О нас</a>
+                <a href="#booking">Запись</a>
+                <a href="#contacts">Контакты</a>
+                <a href="master.html" class="btn-master"><i class="fas fa-lock"></i> Для мастера</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Герой-секция -->
+    <section class="hero">
+        <div class="container">
+            <h2>Волшебные стрижки для самых важных клиентов!</h2>
+            <p>Запишитесь онлайн в удобное время. Стрижка всего 600 рублей, 30 минут, и 6-я стрижка — в подарок!</p>
+            <a href="#booking" class="btn-hero">Записаться сейчас</a>
+        </div>
+    </section>
+
+    <!-- О нас -->
+    <section id="about" class="section">
+        <div class="container">
+            <h3><i class="fas fa-star"></i> Почему выбирают нас?</h3>
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-child"></i>
+                    <h4>Добрые мастера</h4>
+                    <p>Специалисты, которые любят детей и умеют найти подход к каждому.</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-gift"></i>
+                    <h4>6-я стрижка бесплатно</h4>
+                    <p>Программа лояльности: каждая 6-я стрижка — наш подарок!</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-clock"></i>
+                    <h4>Быстро и удобно</h4>
+                    <p>Стрижка занимает 30 минут. Онлайн-запись 24/7.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Блок записи -->
+    <section id="booking" class="section booking-section">
+        <div class="container">
+            <h3><i class="fas fa-calendar-alt"></i> Онлайн-запись</h3>
+            <p>Выберите удобную дату и время для визита</p>
+
+            <div class="booking-form">
+                <div class="form-step">
+                    <label for="clientName">Ваше имя *</label>
+                    <input type="text" id="clientName" placeholder="Например, Анна" required>
+                </div>
+                <div class="form-step">
+                    <label for="clientPhone">Телефон *</label>
+                    <input type="tel" id="clientPhone" placeholder="+7 900 123-45-67" required>
+                </div>
+                <div class="form-step">
+                    <label for="appointmentDate">Дата *</label>
+                    <input type="date" id="appointmentDate" required>
+                </div>
+                <div class="form-step">
+                    <label for="appointmentTime">Время *</label>
+                    <select id="appointmentTime" required>
+                        <option value="">-- Выберите время --</option>
+                        <!-- Временные слоты подгрузятся из JS -->
+                    </select>
+                </div>
+                <button id="submitBooking" class="btn-submit">Записаться за 600 ₽</button>
+                <p class="form-note">После отправки с вами свяжется мастер для подтверждения.</p>
+            </div>
+            <div id="bookingMessage" class="message"></div>
+        </div>
+    </section>
+
+    <!-- Контакты -->
+    <section id="contacts" class="section contacts">
+        <div class="container">
+            <h3><i class="fas fa-map-marker-alt"></i> Контакты</h3>
+            <div class="contact-info">
+                <p><strong>Адрес:</strong> Смоленская область, г. Ярцево, Проспект Металлургов, 21</p>
+                <p><strong>Телефон:</strong> <a href="tel:+79507050964">+7 (950) 705-09-64</a></p>
+                <p><strong>График работы:</strong> Пн-Сб: 10:00 – 19:00</p>
+                <p><strong>ВКонтакте:</strong> <a href="https://vk.com/yarchelka" target="_blank">vk.com/yarchelka</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Подвал -->
+    <footer>
+        <div class="container">
+            <p>© 2023 Детская парикмахерская «ЯрчЁлка». Все права защищены.</p>
+            <p>Стрижки для детей от 0 до 99 лет :)</p>
+        </div>
+    </footer>
+
+    <!-- Подключаем JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
