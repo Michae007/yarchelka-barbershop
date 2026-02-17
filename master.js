@@ -169,41 +169,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Загрузка настроек
-    async function loadSettings() {
-        const { data, error } = await supabaseClient
-            .from('master_settings')
-            .select('*')
-            .single();
+async function loadSettings() {
+    const { data, error } = await supabaseClient
+        .from('master_settings')
+        .select('*')
+        .single();
 
-        if (error) {
-            console.error('Ошибка загрузки настроек:', error);
-            return;
-        }
-
-        workStartInput.value = data.work_start;
-        workEndInput.value = data.work_end;
-        slotDurationInput.value = data.slot_duration;
-        priceInput.value = data.price;
+    if (error) {
+        console.error('Ошибка загрузки настроек:', error);
+        return;
     }
 
-    // Сохранение настроек
-    saveSettingsBtn.addEventListener('click', async function() {
-        const { error } = await supabaseClient
-            .from('master_settings')
-            .update({
-                work_start: workStartInput.value,
-                work_end: workEndInput.value,
-                slot_duration: slotDurationInput.value,
-                price: priceInput.value
-            })
-            .eq('id', 1);
+    workStartInput.value = data.work_start_time;
+    workEndInput.value = data.work_end_time;
+    slotDurationInput.value = data.slot_duration;
+    priceInput.value = data.price;
+}
 
-        if (error) {
-            showSettingsMessage('Ошибка сохранения: ' + error.message, 'error');
-        } else {
-            showSettingsMessage('Настройки успешно сохранены!', 'success');
-        }
-    });
+// Сохранение настроек
+saveSettingsBtn.addEventListener('click', async function() {
+    const { error } = await supabaseClient
+        .from('master_settings')
+        .update({
+            work_start_time: workStartInput.value,
+            work_end_time: workEndInput.value,
+            slot_duration: slotDurationInput.value,
+            price: priceInput.value
+        })
+        .eq('id', 1);
+
+    if (error) {
+        showSettingsMessage('Ошибка сохранения: ' + error.message, 'error');
+    } else {
+        showSettingsMessage('Настройки успешно сохранены!', 'success');
+    }
+});
 
     // Открытие модального окна клиента
     window.openClientModal = function(id, name, phone, count) {
