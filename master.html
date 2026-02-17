@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель мастера — ЯрчЁлка</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="master-body">
+    <div class="master-container">
+        <!-- Боковая панель -->
+        <aside class="master-sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-crown"></i> Мастер</h2>
+            </div>
+            <nav class="master-nav">
+                <a href="#" class="active" data-tab="appointments"><i class="fas fa-calendar-check"></i> Записи</a>
+                <a href="#" data-tab="clients"><i class="fas fa-users"></i> Клиенты</a>
+                <a href="#" data-tab="settings"><i class="fas fa-cog"></i> Настройки</a>
+                <a href="index.html"><i class="fas fa-home"></i> На сайт</a>
+            </nav>
+            <div class="master-status">
+                <p><strong>Статус:</strong> <span id="statusIndicator">Загрузка...</span></p>
+                <button id="logoutBtn" class="btn-small"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="master-content">
+            <!-- Вкладка "Записи" -->
+            <div id="appointments" class="tab-content active">
+                <h3><i class="fas fa-calendar-alt"></i> Управление записями</h3>
+                <div class="controls">
+                    <input type="date" id="filterDate">
+                    <select id="filterStatus">
+                        <option value="">Все статусы</option>
+                        <option value="active">Активные</option>
+                        <option value="completed">Завершенные</option>
+                        <option value="cancelled">Отмененные</option>
+                    </select>
+                    <button id="refreshBtn"><i class="fas fa-sync-alt"></i> Обновить</button>
+                </div>
+                <div class="table-container">
+                    <table id="appointmentsTable">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Время</th>
+                                <th>Клиент</th>
+                                <th>Телефон</th>
+                                <th>Стрижек</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Строки загрузятся через JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Вкладка "Клиенты" -->
+            <div id="clients" class="tab-content">
+                <h3><i class="fas fa-users"></i> База клиентов</h3>
+                <div class="controls">
+                    <input type="text" id="searchClient" placeholder="Поиск по имени или телефону...">
+                    <button id="addClientBtn"><i class="fas fa-plus"></i> Добавить клиента</button>
+                </div>
+                <div class="table-container">
+                    <table id="clientsTable">
+                        <thead>
+                            <tr>
+                                <th>Имя</th>
+                                <th>Телефон</th>
+                                <th>Стрижек</th>
+                                <th>До скидки</th>
+                                <th>Заметки</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Строки загрузятся через JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Вкладка "Настройки" -->
+            <div id="settings" class="tab-content">
+                <h3><i class="fas fa-cog"></i> Настройки рабочего графика</h3>
+                <div class="settings-form">
+                    <div class="form-step">
+                        <label>Начало рабочего дня</label>
+                        <input type="time" id="workStart" value="10:00">
+                    </div>
+                    <div class="form-step">
+                        <label>Конец рабочего дня</label>
+                        <input type="time" id="workEnd" value="19:00">
+                    </div>
+                    <div class="form-step">
+                        <label>Длительность слота (минут)</label>
+                        <input type="number" id="slotDuration" value="30" min="15">
+                    </div>
+                    <div class="form-step">
+                        <label>Цена стрижки (руб.)</label>
+                        <input type="number" id="price" value="600" min="0">
+                    </div>
+                    <button id="saveSettings" class="btn-submit"><i class="fas fa-save"></i> Сохранить настройки</button>
+                </div>
+                <div id="settingsMessage" class="message"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальное окно для отметки стрижки -->
+    <div id="clientModal" class="modal">
+        <div class="modal-content">
+            <h4>Клиент: <span id="modalClientName"></span></h4>
+            <p>Телефон: <span id="modalClientPhone"></span></p>
+            <p>Количество стрижек: <strong id="modalHaircutCount">0</strong></p>
+            <p>До бесплатной стрижки осталось: <strong id="modalRemaining">6</strong></p>
+            <div class="modal-actions">
+                <button id="addHaircutBtn"><i class="fas fa-scissors"></i> Отметить стрижку (+1)</button>
+                <button id="resetCounterBtn"><i class="fas fa-redo"></i> Сбросить счетчик</button>
+                <button id="closeModalBtn">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="master.js"></script>
+</body>
+</html>
