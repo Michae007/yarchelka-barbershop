@@ -19,9 +19,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedDate = dateInput.value;
         if (!selectedDate) return;
 
+        console.log('=== ЗАГРУЗКА СЛОТОВ ===');
+        console.log('Выбрана дата (selectedDate):', selectedDate);
         timeSelect.innerHTML = '<option value="">-- Загрузка... --</option>';
 
-        // Получаем настройки рабочего времени
+        // 1. Получаем настройки рабочего времени
         const { data: settings, error: settingsError } = await supabaseClient
             .from('master_settings')
             .select('*')
@@ -39,26 +41,55 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Получаем уже занятые слоты
+        console.log('Настройки получены:', settings);
+        console.log('work_start_time:', settings.work_start_time, 'work_end_time:', settings.work_end_time);
+
+        // 2. Получаем уже занятые слоты
         const { data: existingAppointments, error: appsError } = await supabaseClient
             .from('appointments')
             .select('appointment_time')
             .eq('appointment_date', selectedDate)
             .eq('status', 'active');
 
-        const bookedTimes = existingAppointments ? existingAppointments.map(a => a.appointment_time) : [];
+        if (appsError) {
+            console.error('Ошибка загрузки записей:', appsError);
+        }
 
-        // Генерация слотов с правильными именами полей
+        const bookedTimes = existingAppointments ? existingAppointments.map(a => a.appointment_time) : [];
+        console.log('Занятые слоты:', bookedTimes);
+
+        // 3. Генерация всех возможных слотов
         const slots = [];
+        // Создаём объекты Date для начала и конца рабочего дня
         const start = new Date(`${selectedDate}T${settings.work_start_time}`);
         const end = new Date(`${selectedDate}T${settings.work_end_time}`);
         const slotDuration = settings.slot_duration * 60000;
 
+        console.log('start (объект Date):', start);
+        console.log('end (объект Date):', end);
+        console.log('slotDuration (мс):', slotDuration);
+
+        // Проверка на корректность дат
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            console.error('Некорректный формат времени в настройках');
+            timeSelect.innerHTML = '<option value="">Ошибка формата времени</option>';
+            return;
+        }
+
         let current = start;
+        let iterationCount = 0;
         while (current < end) {
-            const timeString = current.toTimeString().slice(0,5);
-            const isFuture = new Date(`${selectedDate}T${timeString}`) > new Date();
+            iterationCount++;
+            const timeString = current.toTimeString().slice(0,5); // "HH:MM"
+            // Создаём объект Date для проверки "в будущем ли время?"
+            const slotDateTime = new Date(`${selectedDate}T${timeString}`);
+            const now = new Date();
+            const isFuture = slotDateTime > now;
+            
+            // Проверяем, не занят ли слот
             const isBooked = bookedTimes.includes(timeString);
+
+            console.log(`Слот ${iterationCount}: ${timeString}, isFuture=${isFuture}, isBooked=${isBooked}`);
 
             if (isFuture && !isBooked) {
                 slots.push(timeString);
@@ -66,7 +97,10 @@ document.addEventListener('DOMContentLoaded', function() {
             current = new Date(current.getTime() + slotDuration);
         }
 
-        // Заполняем select
+        console.log('Всего проверено слотов:', iterationCount);
+        console.log('Доступные слоты:', slots);
+
+        // 4. Заполняем select
         timeSelect.innerHTML = '<option value="">-- Выберите время --</option>';
         if (slots.length === 0) {
             timeSelect.innerHTML += '<option value="">Нет свободных слотов</option>';
@@ -105,9 +139,19 @@ document.addEventListener('DOMContentLoaded', function() {
             .eq('phone', phone)
             .maybeSingle();
 
+        if (clientError) {
+            console.error('Ошибка поиска клиента:', clientError);
+            showMessage('Ошибка при проверке клиента. Попробуйте позже.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Записаться за 600 ₽';
+            return;
+        }
+
         if (existingClient) {
             clientId = existingClient.id;
+            console.log('Клиент найден, id:', clientId);
         } else {
+            // Создаем нового клиента
             const { data: newClient, error: newClientError } = await supabaseClient
                 .from('clients')
                 .insert([{ name, phone }])
@@ -115,12 +159,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 .single();
 
             if (newClientError) {
+                console.error('Ошибка создания клиента:', newClientError);
                 showMessage('Ошибка при создании клиента. Попробуйте позже.', 'error');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Записаться за 600 ₽';
                 return;
             }
             clientId = newClient.id;
+            console.log('Новый клиент создан, id:', clientId);
         }
 
         // Создание записи
@@ -134,9 +180,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }]);
 
         if (appointmentError) {
+            console.error('Ошибка создания записи:', appointmentError);
             showMessage('Ошибка при создании записи. Попробуйте позже.', 'error');
         } else {
             showMessage(`Отлично, ${name}! Вы записаны на ${date} в ${time}. Мастер свяжется с вами для подтверждения.`, 'success');
+            // Очищаем форму
             nameInput.value = '';
             phoneInput.value = '';
             dateInput.value = '';
