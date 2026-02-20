@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Загрузка настроек
+    // Загрузка настроек (исправлено: work_start, work_end)
     async function loadSettings() {
         const { data, error } = await supabaseClient
             .from('master_settings')
@@ -194,19 +194,19 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        workStartInput.value = data.work_start_time;
-        workEndInput.value = data.work_end_time;
+        workStartInput.value = data.work_start;
+        workEndInput.value = data.work_end;
         slotDurationInput.value = data.slot_duration;
         priceInput.value = data.price;
     }
 
-    // Сохранение настроек
+    // Сохранение настроек (исправлено: work_start, work_end)
     saveSettingsBtn.addEventListener('click', async function() {
         const { error } = await supabaseClient
             .from('master_settings')
             .update({
-                work_start_time: workStartInput.value,
-                work_end_time: workEndInput.value,
+                work_start: workStartInput.value,
+                work_end: workEndInput.value,
                 slot_duration: slotDurationInput.value,
                 price: priceInput.value
             })
