@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         console.log('Настройки получены:', settings);
-        console.log('work_start_time:', settings.work_start_time, 'work_end_time:', settings.work_end_time);
+        console.log('work_start:', settings.work_start, 'work_end:', settings.work_end);
 
         // 2. Получаем уже занятые слоты
         const { data: existingAppointments, error: appsError } = await supabaseClient
@@ -60,9 +60,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 3. Генерация всех возможных слотов
         const slots = [];
-        // Создаём объекты Date для начала и конца рабочего дня
-        const start = new Date(`${selectedDate}T${settings.work_start_time}`);
-        const end = new Date(`${selectedDate}T${settings.work_end_time}`);
+        // Используем правильные имена полей: work_start и work_end
+        const start = new Date(`${selectedDate}T${settings.work_start}`);
+        const end = new Date(`${selectedDate}T${settings.work_end}`);
         const slotDuration = settings.slot_duration * 60000;
 
         console.log('start (объект Date):', start);
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Обработка формы записи (остаётся без изменений)
+    // Обработка формы записи
     submitBtn.addEventListener('click', async function(e) {
         e.preventDefault();
 
