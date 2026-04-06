@@ -1,4 +1,3 @@
-/* Базовые стили и сброс */
 * {
     margin: 0;
     padding: 0;
@@ -7,7 +6,7 @@
 }
 
 body {
-    background-color: #fff9f0; /* Светлый бежевый, как фон детской */
+    background-color: #fff9f0;
     color: #333;
     line-height: 1.6;
 }
@@ -19,7 +18,6 @@ body {
     padding: 0 20px;
 }
 
-/* Цвета на основе логотипа (синий, желтый, красный) */
 :root {
     --primary-blue: #1e88e5;
     --primary-yellow: #ffd700;
@@ -28,7 +26,6 @@ body {
     --dark-gray: #333;
 }
 
-/* Шапка */
 header {
     background: linear-gradient(135deg, var(--primary-blue) 0%, #1565c0 100%);
     color: white;
@@ -74,7 +71,7 @@ nav a:hover {
     margin-left: 2rem;
 }
 
-/* Герой */
+/* ИСПРАВЛЕНО: правильный URL изображения (unsplash, а не unplash) */
 .hero {
     background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('https://images.unsplash.com/photo-1515377905703-c4788e51af15?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') center/cover;
     text-align: center;
@@ -112,7 +109,6 @@ nav a:hover {
     box-shadow: 0 10px 20px rgba(255, 82, 82, 0.3);
 }
 
-/* Секции */
 .section {
     padding: 3rem 1rem;
 }
@@ -124,7 +120,6 @@ nav a:hover {
     color: var(--primary-blue);
 }
 
-/* Фичи */
 .features {
     display: flex;
     justify-content: center;
@@ -160,9 +155,8 @@ nav a:hover {
     margin-bottom: 1rem;
 }
 
-/* Форма записи */
 .booking-section {
-    background-color: #e3f2fd; /* Светло-голубой */
+    background-color: #e3f2fd;
     border-radius: 20px;
     margin: 2rem auto;
     max-width: 900px;
@@ -227,7 +221,6 @@ input:focus, select:focus {
     text-align: center;
 }
 
-/* Контакты */
 .contacts {
     background-color: white;
     border-radius: 20px;
@@ -251,7 +244,6 @@ input:focus, select:focus {
     text-decoration: underline;
 }
 
-/* Подвал */
 footer {
     background-color: var(--dark-gray);
     color: white;
@@ -260,7 +252,6 @@ footer {
     margin-top: 3rem;
 }
 
-/* Сообщения */
 .message {
     padding: 1rem;
     border-radius: 10px;
@@ -283,7 +274,6 @@ footer {
     display: block;
 }
 
-/* Стили для панели мастера */
 .master-body {
     background-color: #f5f7fa;
 }
@@ -342,7 +332,6 @@ footer {
     display: block;
 }
 
-/* Таблицы */
 .table-container {
     overflow-x: auto;
     margin-top: 1.5rem;
@@ -373,7 +362,6 @@ tr:hover {
     background-color: #f9f9f9;
 }
 
-/* Кнопки действий */
 .btn-small {
     padding: 0.5rem 1rem;
     border: none;
@@ -402,7 +390,6 @@ tr:hover {
     opacity: 0.9;
 }
 
-/* Модальное окно */
 .modal {
     display: none;
     position: fixed;
@@ -432,41 +419,33 @@ tr:hover {
     flex-wrap: wrap;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     .header-container, .features {
         flex-direction: column;
         text-align: center;
     }
-
     nav a {
         margin: 0.5rem;
     }
-
     .master-container {
         flex-direction: column;
     }
-
     .master-sidebar {
         width: 100%;
         padding: 1rem;
     }
-
     .master-nav {
         flex-direction: row;
         overflow-x: auto;
     }
-
     .master-nav a {
         margin-bottom: 0;
         margin-right: 0.5rem;
         white-space: nowrap;
     }
-
     .hero h2 {
         font-size: 2rem;
     }
-
     .section h3 {
         font-size: 1.8rem;
     }
