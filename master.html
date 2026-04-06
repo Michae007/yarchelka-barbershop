@@ -9,7 +9,6 @@
 </head>
 <body class="master-body">
     <div class="master-container">
-        <!-- Боковая панель -->
         <aside class="master-sidebar">
             <div class="logo">
                 <h2><i class="fas fa-crown"></i> Мастер</h2>
@@ -26,9 +25,7 @@
             </div>
         </aside>
 
-        <!-- Основной контент -->
         <main class="master-content">
-            <!-- Вкладка "Записи" -->
             <div id="appointments" class="tab-content active">
                 <h3><i class="fas fa-calendar-alt"></i> Управление записями</h3>
                 <div class="controls">
@@ -44,24 +41,13 @@
                 <div class="table-container">
                     <table id="appointmentsTable">
                         <thead>
-                            <tr>
-                                <th>Дата</th>
-                                <th>Время</th>
-                                <th>Клиент</th>
-                                <th>Телефон</th>
-                                <th>Стрижек</th>
-                                <th>Статус</th>
-                                <th>Действия</th>
-                            </tr>
+                            <tr><th>Дата</th><th>Время</th><th>Клиент</th><th>Телефон</th><th>Стрижек</th><th>Статус</th><th>Действия</th></tr>
                         </thead>
-                        <tbody>
-                            <!-- Строки загрузятся через JS -->
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Вкладка "Клиенты" -->
             <div id="clients" class="tab-content">
                 <h3><i class="fas fa-users"></i> База клиентов</h3>
                 <div class="controls">
@@ -70,43 +56,19 @@
                 </div>
                 <div class="table-container">
                     <table id="clientsTable">
-                        <thead>
-                            <tr>
-                                <th>Имя</th>
-                                <th>Телефон</th>
-                                <th>Стрижек</th>
-                                <th>До скидки</th>
-                                <th>Заметки</th>
-                                <th>Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Строки загрузятся через JS -->
-                        </tbody>
+                        <thead><tr><th>Имя</th><th>Телефон</th><th>Стрижек</th><th>До скидки</th><th>Заметки</th><th>Действия</th></tr></thead>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Вкладка "Настройки" -->
             <div id="settings" class="tab-content">
                 <h3><i class="fas fa-cog"></i> Настройки рабочего графика</h3>
                 <div class="settings-form">
-                    <div class="form-step">
-                        <label>Начало рабочего дня</label>
-                        <input type="time" id="workStart" value="10:00">
-                    </div>
-                    <div class="form-step">
-                        <label>Конец рабочего дня</label>
-                        <input type="time" id="workEnd" value="19:00">
-                    </div>
-                    <div class="form-step">
-                        <label>Длительность слота (минут)</label>
-                        <input type="number" id="slotDuration" value="30" min="15">
-                    </div>
-                    <div class="form-step">
-                        <label>Цена стрижки (руб.)</label>
-                        <input type="number" id="price" value="600" min="0">
-                    </div>
+                    <div class="form-step"><label>Начало рабочего дня</label><input type="time" id="workStart" value="10:00"></div>
+                    <div class="form-step"><label>Конец рабочего дня</label><input type="time" id="workEnd" value="19:00"></div>
+                    <div class="form-step"><label>Длительность слота (минут)</label><input type="number" id="slotDuration" value="30" min="15"></div>
+                    <div class="form-step"><label>Цена стрижки (руб.)</label><input type="number" id="price" value="600" min="0"></div>
                     <button id="saveSettings" class="btn-submit"><i class="fas fa-save"></i> Сохранить настройки</button>
                 </div>
                 <div id="settingsMessage" class="message"></div>
@@ -114,7 +76,6 @@
         </main>
     </div>
 
-    <!-- Модальное окно для отметки стрижки -->
     <div id="clientModal" class="modal">
         <div class="modal-content">
             <h4>Клиент: <span id="modalClientName"></span></h4>
@@ -129,9 +90,12 @@
         </div>
     </div>
 
-    <!-- Подключаем JS -->
+    <!-- ИСПРАВЛЕНО: правильное подключение Supabase -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="master.js"></script>
 </body>
 </html>
+
+
+   
