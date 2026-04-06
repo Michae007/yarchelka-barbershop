@@ -9,11 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Шапка -->
     <header>
         <div class="container header-container">
             <div class="logo">
-                <!-- Вставьте ваше лого как изображение или текст -->
                 <h1><i class="fas fa-scissors"></i> ЯрчЁлка</h1>
                 <p class="tagline">Детская парикмахерская в Ярцево</p>
             </div>
@@ -26,7 +24,6 @@
         </div>
     </header>
 
-    <!-- Герой-секция -->
     <section class="hero">
         <div class="container">
             <h2>Волшебные стрижки для самых важных клиентов!</h2>
@@ -35,7 +32,6 @@
         </div>
     </section>
 
-    <!-- О нас -->
     <section id="about" class="section">
         <div class="container">
             <h3><i class="fas fa-star"></i> Почему выбирают нас?</h3>
@@ -59,7 +55,6 @@
         </div>
     </section>
 
-    <!-- Блок записи -->
     <section id="booking" class="section booking-section">
         <div class="container">
             <h3><i class="fas fa-calendar-alt"></i> Онлайн-запись</h3>
@@ -82,7 +77,6 @@
                     <label for="appointmentTime">Время *</label>
                     <select id="appointmentTime" required>
                         <option value="">-- Выберите время --</option>
-                        <!-- Временные слоты подгрузятся из JS -->
                     </select>
                 </div>
                 <button id="submitBooking" class="btn-submit">Записаться за 600 ₽</button>
@@ -92,7 +86,6 @@
         </div>
     </section>
 
-    <!-- Контакты -->
     <section id="contacts" class="section contacts">
         <div class="container">
             <h3><i class="fas fa-map-marker-alt"></i> Контакты</h3>
@@ -105,7 +98,6 @@
         </div>
     </section>
 
-    <!-- Подвал -->
     <footer>
         <div class="container">
             <p>© 2023 Детская парикмахерская «ЯрчЁлка». Все права защищены.</p>
@@ -113,7 +105,7 @@
         </div>
     </footer>
 
-    <!-- Подключаем JS -->
+    <!-- ИСПРАВЛЕНО: правильное подключение Supabase -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="app.js"></script>
